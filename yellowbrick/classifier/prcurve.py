@@ -408,43 +408,8 @@ class PrecisionRecallCurve(ClassificationScoreVisualizer):
         self.ax.set_ylabel("Precision")
         self.ax.set_xlabel("Recall")
 
-    def _get_y_scores(self, X):
-        """
-        The ``precision_recall_curve`` metric requires target scores that
-        can either be the probability estimates of the positive class,
-        confidence values, or non-thresholded measures of decisions (as
-        returned by a "decision function").
-        """
-        # TODO refactor shared method with ROCAUC
-
-        # Resolution order of scoring functions
-        attrs = ("decision_function", "predict_proba")
-
-        # Return the first resolved function
-        for attr in attrs:
-            try:
-                method = getattr(self.estimator, attr, None)
-                if method:
-                    # Compute the scores from the decision function
-                    y_scores = method(X)
-
-                    # Return only the positive class for binary predict_proba
-                    if self.target_type_ == BINARY and y_scores.ndim == 2:
-                        return y_scores[:, 1]
-                    return y_scores
-
-            except AttributeError:
-                # Some Scikit-Learn estimators have both probability and
-                # decision functions but override __getattr__ and raise an
-                # AttributeError on access.
-                continue
-
-        # If we've gotten this far, we can't do anything
-        raise ModelError(
-            (
-                "{} requires an estimator with predict_proba or decision_function."
-            ).format(self.__class__.__name__)
-        )
+        if self.target_type_ == MULTICLASS:
+            self.ax.grid(False)
 
 
 # Alias for PrecisionRecallCurve

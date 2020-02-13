@@ -370,46 +370,6 @@ class ROCAUC(ClassificationScoreVisualizer):
         self.ax.set_ylabel("True Postive Rate")
         self.ax.set_xlabel("False Positive Rate")
 
-    def _get_y_scores(self, X):
-        """
-        The ``roc_curve`` metric requires target scores that can either be the
-        probability estimates of the positive class, confidence values or non-
-        thresholded measure of decisions (as returned by "decision_function").
-
-        This method computes the scores by resolving the estimator methods
-        that retreive these values.
-
-        .. todo:: implement confidence values metric.
-
-        Parameters
-        ----------
-        X : ndarray or DataFrame of shape n x m
-            A matrix of n instances with m features -- generally the test data
-            that is associated with y_true values.
-        """
-        # The resolution order of scoring functions
-        attrs = ("predict_proba", "decision_function")
-
-        # Return the first resolved function
-        for attr in attrs:
-            try:
-                method = getattr(self.estimator, attr, None)
-                if method:
-                    return method(X)
-            except AttributeError:
-                # Some Scikit-Learn estimators have both probability and
-                # decision functions but override __getattr__ and raise an
-                # AttributeError on access.
-                # Note that because of the ordering of our attrs above,
-                # estimators with both will *only* ever use probability.
-                continue
-
-        # If we've gotten this far, raise an error
-        raise ModelError(
-            "ROCAUC requires estimators with predict_proba or "
-            "decision_function methods."
-        )
-
     def _score_micro_average(self, y, y_pred, classes, n_classes):
         """
         Compute the micro average scores for the ROCAUC curves.
