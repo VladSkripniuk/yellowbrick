@@ -408,7 +408,7 @@ class PrecisionRecallCurve(ClassificationScoreVisualizer):
         self.ax.set_ylabel("Precision")
         self.ax.set_xlabel("Recall")
 
-        if self.target_type_ == MULTICLASS:
+        if self.per_class:
             self.ax.grid(False)
 
 
